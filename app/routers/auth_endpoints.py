@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 from app.schemas.user_schema import UserCredentials
 from app.services.auth_service import register_user_service, authenticate_user
 from app.core.exeptions import EmailAlreadyExistsError, CredentialsError
+from app.core.secrete_key_config import ACCESS_TOKEN_EXPIRES_MINUTES
 from app.auth.auth_dependency_jwt import create_token
 
 
@@ -27,15 +28,22 @@ async def register_user(user_credentials: UserCredentials):
 async def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
     try:
         user_id = authenticate_user(form_data.username, form_data.password)
-        claim = {
-            "sub":user_id
-        }
-        expiry_delta = timedelta(minutes=20)
-        access_token = create_token(claim, expiry_delta)
+        
+        # print("user_id:", user_id[0])
+        # print("Password: ",form_data.password)
+        # print("Email: ", form_data.username)
+        expiry_delta = timedelta(minutes=ACCESS_TOKEN_EXPIRES_MINUTES)
+
+        access_token = create_token(data={
+            "sub":user_id[0]
+        },
+         expiry_delta=expiry_delta)
         return {
             "access_token": access_token,
-            "token_type": "bearer"
+            "token_type": "bearer",
+            "message": "Logined successfull..."
         }
+        
     except (CredentialsError):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
