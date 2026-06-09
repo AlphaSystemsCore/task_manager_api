@@ -27,12 +27,6 @@ def get_user_id(email):
         user_id = cur.fetchone()
         return user_id
 
-def get_credential_id(email):
-    with get_cur() as cur:
-        cur.execute("SELECT credential_id FROM  credentials WHERE email = %s", (email,))
-        credentail_id = cur.fetchone()
-    return credential_id
-
 def get_email(email):
     with get_cur() as cur:
         cur.execute("SELECT email FROM credentials WHERE email = %s", (email,))
