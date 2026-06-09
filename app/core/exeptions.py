@@ -3,3 +3,6 @@ class EmailAlreadyExistsError(Exception):
 
 class EmailDoesNotExistsError(Exception):
     pass
+
+class CredentialsError(Exception):
+    pass

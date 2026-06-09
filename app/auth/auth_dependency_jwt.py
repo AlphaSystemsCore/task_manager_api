@@ -2,7 +2,7 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
 from datetime import datetime, timezone, timedelta
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
