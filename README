@@ -1,3 +1,5 @@
 THIS IS A TASK MANAGER API
-login using email and password 
-
+Register using username and password
+You can then login and perform all CRUD C-Create R-Read U-Update D-Delete a Task(Tasks) on this application 
+Use the requirements.txt to install the packages used.
+The project is under development and will soon be documented step by step on how to use and scale, anyone can clone and contribute to the system.I am aiming higher than the current snapshot
