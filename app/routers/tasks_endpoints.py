@@ -1,46 +1,62 @@
-from fastapi import FastAPI, APIRouter, Depends,Form, Query, HTTPException
+from fastapi import (
+ FastAPI,
+ APIRouter, 
+ Depends,
+ Form, 
+ Query,
+ status,
+ HTTPException)
+from typing import Annotated
 
 from app.auth.auth_dependency_jwt import get_current_user
-from app.schemas.task_schemas import TaskIN, Pagination
-from app.services.task_service import create_task_service,get_all_tasks_service, get_task_by_name_service
+from app.schemas.task_schemas import TaskIN, Pagination, TasksOut
+from app.services.task_service import (
+    create_task_service,
+    get_tasks_service
+    )
+
 router_tasks = APIRouter()
 
 @router_tasks.post("/tasks")
-async def create_task(task:TaskIN = Form(), user_id: str = Depends(get_current_user)):
+async def create_task(
+    user_id: Annotated[str, Depends(get_current_user)], 
+    task:TaskIN = Form()
+    ):
     try:
         task_id = create_task_service(task.name, task.category, user_id, task.duration)
-        return {"message":f"{task_id} -Task Created Successful"}
     except Exception as e:
         raise HTTPException(
             status_code = 400,
             detail=str(e)
         )
+    else:
+        return {"message": f"Task id: {task_id}, Created successfully."}
 
-@router_tasks.get("/tasks")
-async def get_all_tasks(user_id: str = Depends(get_current_user), pagination: Pagination = Query()):
+
+@router_tasks.get("/tasks/", response_model=list[TasksOut])
+def get_tasks(user_id: Annotated[str, Depends(get_current_user)], pagination:Pagination = Query()):
+    tasks = get_tasks_service(user_id, pagination.limit, pagination.offset)
     try:
-        tasks = get_all_tasks_service(user_id, pagination.limit, pagination.offset)
-        return tasks
+        if tasks is not None:
+            return [
+                TasksOut(
+                name=task[0],
+                category=task[1],
+                status=task[2],
+                time_created=task[3],
+                duration=task[4],
+                time_completed=task[5]
+            )
+            for task in tasks]
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No task found"
+            )
     except Exception as e:
+        # log
         raise HTTPException(
-            status_code=500,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="No task found"
         )
-        
-@router_tasks.get("/tasks/{name}")
-def get_all_tasks_by_name(name:str, user_id: str = Depends(get_current_user)):
-    task = get_task_by_name_service(user_id, name)
-    return task
-
-@router_tasks.put("/tasks/{task_id}")
-async def update_task(user_id: str = Depends(get_current_user)):
-    pass
-
-@router_tasks.patch("/tasks/{task_id}")
-async def update_task_partially(user_id: str = Depends(get_current_user)):
-    pass
-
-@router_tasks.get("/tasks/{task_id}")
-async def get_task(user_id: str = Depends(get_current_user)):
-    pass
 

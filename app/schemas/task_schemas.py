@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Literal
+from datetime import datetime
 
 class TaskIN(BaseModel):
     name: str 
@@ -7,5 +8,13 @@ class TaskIN(BaseModel):
     duration: str
     
 class Pagination(BaseModel):
-    limit: int = 10
-    offset: int = 0
+    limit: int = Field(10, ge=1, le=25)
+    offset: int = Field(0, ge=0)
+
+class TasksOut(BaseModel):
+    name: str
+    category: str
+    status: str
+    time_created: datetime
+    duration: str
+    time_completed: datetime | None = None

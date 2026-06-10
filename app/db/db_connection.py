@@ -3,6 +3,7 @@ from psycopg2 import pool
 from contextlib import contextmanager
 from app.core.db_configuration import load_config
 
+
 config = load_config()
 
 db_pool = psycopg2.pool.SimpleConnectionPool(
