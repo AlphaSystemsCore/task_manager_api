@@ -16,7 +16,8 @@ from app.services.task_service import (
     get_tasks_service,
     get_task_by_name_service,
     update_task_service, 
-    update_status_service
+    update_status_service,
+    delete_task_service
     )
 
 router_tasks = APIRouter()
@@ -79,7 +80,7 @@ def update_task(task_id:UUID, user_id: UUID = Depends(get_current_user), field:T
             detail=str(e)
         )
 
-from fastapi import status
+
 @router_tasks.patch("/tasks/status/")
 def update_status(
     field: Update_Status,
@@ -92,3 +93,14 @@ def update_status(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
+
+@router_tasks.delete("/tasks/{task_id}")
+def delete_task(task_id:str, user_id: Annotated[str, Depends(get_current_user)]):
+    try:
+        return delete_task_service(user_id, task_id)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+        # 4c24455e-d6e1-40dc-a3cf-ba7754428a93

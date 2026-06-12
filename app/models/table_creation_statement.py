@@ -19,7 +19,7 @@ tables = (
     )
     """,
 
-    "CREATE TYPE category_type AS ENUM('personal', 'school', 'leisure', 'Job')",
+    "CREATE TYPE category_type AS ENUM('personal', 'school', 'leisure', 'job')",
     "CREATE TYPE status_type AS ENUM('pending', 'completed', 'canceled')",
 
     """

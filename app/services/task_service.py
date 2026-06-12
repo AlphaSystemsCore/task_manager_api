@@ -4,7 +4,8 @@ from app.repositories.tasks_repo import (
     get_tasks_repo,
     get_task_by_name_repo,
     update_task_repo,
-    update_status_repo
+    update_status_repo,
+    delete_task_repo
     )
 from app.schemas.task_schemas import TasksOut
 def create_task_service(name: str, category:str, user_id:str , duration: str):
@@ -72,7 +73,6 @@ def update_task_service(
         raise Exception
 def update_status_service(user_id:str, status:str, task_id:str):
     try:
-        print(task_id)
         if status == "completed":
             time_completed = datetime.now(timezone.utc)
             update_status_repo(user_id, task_id, status, time_completed)
@@ -85,3 +85,13 @@ def update_status_service(user_id:str, status:str, task_id:str):
         return {
             
         }
+
+def delete_task_service(user_id:str, task_id:str):
+    try:
+        delete_task_repo(user_id, task_id)
+    except Exception as e:
+        print(e)
+        raise Exception
+    else:
+        return   {"message":"Task deleted successfully"}
+        

@@ -55,3 +55,12 @@ def update_status_repo(user_id:str, task_id:str, status:str, time_completed:date
             """,
             (status, time_completed, task_id, user_id)
         )
+
+def delete_task_repo(user_id:str, task_id:str):
+    with get_cur() as cur:
+        cur.execute(
+            """
+            DELETE FROM tasks 
+            WHERE task_id = %s AND user_id = %s
+            """,(task_id, user_id)
+        )
