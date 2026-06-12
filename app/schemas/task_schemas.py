@@ -9,7 +9,7 @@ class TaskIN(BaseModel):
     duration: str
     
 class Pagination(BaseModel):
-    limit: int = Field(10, ge=1, le=25)
+    limit: int = Field(10, ge=1, le=50)
     offset: int = Field(0, ge=0)
 
 class TasksOut(BaseModel):
@@ -28,4 +28,5 @@ class To_Be_Updated(BaseModel):
 
 class Update_Status(BaseModel):
     task_id:str
-    status:Optional[Literal['pending', 'completed', 'canceled']] = None
+    new_status:Optional[Literal['pending', 'completed', 'canceled']]
+    

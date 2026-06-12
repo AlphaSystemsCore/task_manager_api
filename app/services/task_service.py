@@ -1,8 +1,10 @@
+from datetime import datetime,timezone
 from app.repositories.tasks_repo import ( 
     create_task_repo, 
     get_tasks_repo,
     get_task_by_name_repo,
-    update_task_repo
+    update_task_repo,
+    update_status_repo
     )
 from app.schemas.task_schemas import TasksOut
 def create_task_service(name: str, category:str, user_id:str , duration: str):
@@ -68,3 +70,18 @@ def update_task_service(
 
     except Exception as e:
         raise Exception
+def update_status_service(user_id:str, status:str, task_id:str):
+    try:
+        print(task_id)
+        if status == "completed":
+            time_completed = datetime.now(timezone.utc)
+            update_status_repo(user_id, task_id, status, time_completed)
+        else:
+            time_completed = None
+            update_status_repo(user_id, task_id, status, time_completed)
+    except Exception:
+        raise Exception
+    else:
+        return {
+            
+        }

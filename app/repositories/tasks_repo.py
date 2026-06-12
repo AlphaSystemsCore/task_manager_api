@@ -1,4 +1,5 @@
 from app.db.db_connection import get_cur
+from datetime import datetime
 
 def create_task_repo(name:str, category:str, user_id:str, duration:str):
     with get_cur() as cur:
@@ -42,3 +43,15 @@ def update_task_repo(
             (name, category, time_to_be_completed, task_id, user_id)
         )
         
+def update_status_repo(user_id:str, task_id:str, status:str, time_completed:datetime | None ):
+    with get_cur() as cur:
+        cur.execute(
+            """
+            UPDATE tasks
+            SET 
+                status = %s,
+                time_completed = COALESCE(%s, time_completed)
+            WHERE task_id = %s AND user_id = %s
+            """,
+            (status, time_completed, task_id, user_id)
+        )

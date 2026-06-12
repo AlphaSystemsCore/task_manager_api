@@ -10,12 +10,13 @@ from typing import Annotated
 from uuid import UUID
 
 from app.auth.auth_dependency_jwt import get_current_user
-from app.schemas.task_schemas import TaskIN, Pagination, TasksOut, To_Be_Updated
+from app.schemas.task_schemas import TaskIN, Pagination,Update_Status, TasksOut, To_Be_Updated
 from app.services.task_service import (
     create_task_service,
     get_tasks_service,
     get_task_by_name_service,
-    update_task_service
+    update_task_service, 
+    update_status_service
     )
 
 router_tasks = APIRouter()
@@ -78,5 +79,16 @@ def update_task(task_id:UUID, user_id: UUID = Depends(get_current_user), field:T
             detail=str(e)
         )
 
+from fastapi import status
 @router_tasks.patch("/tasks/status/")
-def 
+def update_status(
+    field: Update_Status,
+    user_id: str = Depends(get_current_user)
+):
+    try:
+        return update_status_service(user_id, field.new_status, field.task_id)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
