@@ -7,12 +7,15 @@ from fastapi import (
  status,
  HTTPException)
 from typing import Annotated
+from uuid import UUID
 
 from app.auth.auth_dependency_jwt import get_current_user
-from app.schemas.task_schemas import TaskIN, Pagination, TasksOut
+from app.schemas.task_schemas import TaskIN, Pagination, TasksOut, To_Be_Updated
 from app.services.task_service import (
     create_task_service,
-    get_tasks_service
+    get_tasks_service,
+    get_task_by_name_service,
+    update_task_service
     )
 
 router_tasks = APIRouter()
@@ -24,39 +27,56 @@ async def create_task(
     ):
     try:
         task_id = create_task_service(task.name, task.category, user_id, task.duration)
+        
     except Exception as e:
         raise HTTPException(
             status_code = 400,
             detail=str(e)
         )
     else:
-        return {"message": f"Task id: {task_id}, Created successfully."}
+        if task_id:
+            return {"message": f"Task id: {task_id[0]}, Created successfully."}
 
 
 @router_tasks.get("/tasks/", response_model=list[TasksOut])
 def get_tasks(user_id: Annotated[str, Depends(get_current_user)], pagination:Pagination = Query()):
-    tasks = get_tasks_service(user_id, pagination.limit, pagination.offset)
+    #endpoints to return tasks
     try:
-        if tasks is not None:
-            return [
-                TasksOut(
-                name=task[0],
-                category=task[1],
-                status=task[2],
-                time_created=task[3],
-                duration=task[4],
-                time_completed=task[5]
-            )
-            for task in tasks]
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No task found"
-            )
+        tasks = get_tasks_service(user_id, pagination.limit, pagination.offset)
     except Exception as e:
         # log
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="No task found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+    else:
+        return tasks
+
+@router_tasks.get("/tasks/{task_name}", response_model=TasksOut)
+def get_task_by_name(task_name:str, user_id: Annotated[UUID, Depends(get_current_user)]):
+    # read a task by name
+    try:
+        task = get_task_by_name_service(user_id, task_name)
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e)
+        )
+    else:
+        return task
+
+@router_tasks.put("/tasks/{task_id}")
+def update_task(task_id:UUID, user_id: UUID = Depends(get_current_user), field:To_Be_Updated = Form()):
+    try:
+        if not field.category:
+            field.category = None
+        update_task_service(user_id, str(task_id), field.name, field.category, field.time_to_be_completed)
+        return {"message":"Update successfully"}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
         )
 
+@router_tasks.patch("/tasks/status/")
+def 
